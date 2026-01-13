@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio BTS SIO - SISR</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Portfolio BTS SIO</div>
+            <div class="nav-toggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Accueil</a></li>
+                <li><a href="about.html" class="nav-link">À propos</a></li>
+                <li><a href="e5.html" class="nav-link">E5 - Projets</a></li>
+                <li><a href="e6.html" class="nav-link">E6 - Projets</a></li>
+                <li><a href="veille.html" class="nav-link">Veille</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Portfolio BTS SIO</h1>
+            <p>Solutions d'Infrastructure, Systèmes et Réseaux</p>
+            <a href="about.html" class="cta-button">Découvrir mon parcours</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-header">
+            <h2>Bienvenue sur mon portfolio</h2>
+            <p>Découvrez mes projets, compétences et réalisations dans le domaine des infrastructures système et réseau</p>
+        </div>
+        <div class="card-grid">
+            <div class="card fade-in clickable-card" onclick="window.location.href='about.html'">
+                <h3>🎓 Formation</h3>
+                <p>BTS Services Informatiques aux Organisations, option Solutions d'Infrastructure, Systèmes et Réseaux (SISR)</p>
+            </div>
+            <div class="card fade-in clickable-card" onclick="window.location.href='e5.html'">
+                <h3>💼 Projets E5</h3>
+                <p>Projets de support et mise à disposition de services informatiques en contexte professionnel</p>
+            </div>
+            <div class="card fade-in clickable-card" onclick="window.location.href='e6.html'">
+                <h3>🔧 Projets E6</h3>
+                <p>Projets de cybersécurité des services informatiques et administration des systèmes</p>
+            </div>
+            <div class="card fade-in clickable-card" onclick="window.location.href='veille.html'">
+                <h3>📡 Veille Technologique</h3>
+                <p>Méthodes et outils de veille technologique et juridique dans le domaine informatique</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

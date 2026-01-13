@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projets E5 - Portfolio BTS SIO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Portfolio BTS SIO</div>
+            <div class="nav-toggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Accueil</a></li>
+                <li><a href="about.html" class="nav-link">À propos</a></li>
+                <li><a href="e5.html" class="nav-link active">E5 - Projets</a></li>
+                <li><a href="e6.html" class="nav-link">E6 - Projets</a></li>
+                <li><a href="veille.html" class="nav-link">Veille</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h2>Projets E5</h2>
+            <p>Support et mise à disposition de services informatiques</p>
+        </div>
+        
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Mise en place d'un réseau avec GLPI</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong> Mettre en place un réseau avec connexion à glpi.</p>
+                <br>
+                <p><strong>Objectifs :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Centraliser l'authentification des utilisateurs</li>
+                    <li>accès à GLPI pour les tickets</li>
+                    <li>Connexion des PC dans l'environnement</li>
+                </ul>
+                <br>
+                <p><strong>Technologies utilisées :</strong></p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Windows Server 2016/2022 et ubuntu server</span>
+                    <span class="tech-tag">Active Directory</span>
+                    <span class="tech-tag">DNS</span>
+                    <span class="tech-tag">DHCP</span>
+                    <span class="tech-tag">GLPI</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Réseau d'entreprise Virtuel</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong> Création d'un réseau d'entreprise avec un routeur et un serveur DNS/DHCP et une active directory.</p>
+                <br>
+                <p><strong>Réalisations :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Mise en place d'un DHCP et d'un DNS</li>
+                    <li>Active directory avec des ordinateurs utilisateurs </li>
+                    <li>Configuration du stockage partagé</li>
+                    <li>Mettre en place des stratégies de groupe (GPO)</li>
+		    <li>Mise en place du déploiement de Windows en WDS</li>
+                </ul>
+                <br>
+		<p><strong>Outils utilisées :</strong></p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Virtualbox</span>
+                    <span class="tech-tag">Windows Server 2016/2022</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veille Technologique - Portfolio BTS SIO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Portfolio BTS SIO</div>
+            <div class="nav-toggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Accueil</a></li>
+                <li><a href="about.html" class="nav-link">À propos</a></li>
+                <li><a href="e5.html" class="nav-link">E5 - Projets</a></li>
+                <li><a href="e6.html" class="nav-link">E6 - Projets</a></li>
+                <li><a href="veille.html" class="nav-link active">Veille</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h2>Veille Technologique et Juridique</h2>
+            <p>Ma méthode pour rester à jour dans le domaine informatique</p>
+        </div>
+        
+        <div class="veille-method">
+            <h3>Ma méthode de veille</h3>
+            <div class="method-step">
+                <div class="step-number">1</div>
+                <div>
+                    <h4>Identification des sources</h4>
+                    <p>Sélection de sources fiables : sites spécialisés, blogs techniques, forums communautaires</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="step-number">2</div>
+                <div>
+                    <h4>Collecte automatisée</h4>
+                    <p>Utilisation de flux RSS, alertes Google, newsletters pour automatiser la collecte d'informations</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="step-number">3</div>
+                <div>
+                    <h4>Analyse et tri</h4>
+                    <p>Évaluation de la pertinence et de la fiabilité des informations collectées</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="step-number">4</div>
+                <div>
+                    <h4>Synthèse et partage</h4>
+                    <p>Création de synthèses et partage des informations pertinentes avec l'équipe</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>🔒 Veille Cybersécurité</h3>
+                <p>Suivi des dernières vulnérabilités, techniques d'attaque et solutions de protection dans le domaine de la cybersécurité.</p>
+                <br>
+                <strong>Sources principales :</strong>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>ANSSI</li>
+                    <li>CERT-FR</li>
+                    <li>CVE Database</li>
+                    <li>Security Forums</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>⚖️ Veille Juridique</h3>
+                <p>Surveillance des évolutions réglementaires impactant l'informatique : RGPD, cybersécurité, données personnelles.</p>
+                <br>
+                <strong>Domaines suivis :</strong>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Protection des données</li>
+                    <li>Droit informatique</li>
+                    <li>Réglementations sectorielles</li>
+                    <li>Propriété intellectuelle</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

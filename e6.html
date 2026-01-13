@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projets E6 - Portfolio BTS SIO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Portfolio BTS SIO</div>
+            <div class="nav-toggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Accueil</a></li>
+                <li><a href="about.html" class="nav-link">À propos</a></li>
+                <li><a href="e5.html" class="nav-link">E5 - Projets</a></li>
+                <li><a href="e6.html" class="nav-link active">E6 - Projets</a></li>
+                <li><a href="veille.html" class="nav-link">Veille</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h2>Projets E6</h2>
+            <p>Services informatiques des entreprises</p>
+        </div>
+        
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Haute disponibilité</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong>Création d'un réseau ayant une haute disponibilité</p>
+                <br>
+                <p><strong>Méthodologie :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>DHCP/DNS</li>
+                    <li>Haute disponibilité</li>
+                </ul>
+                <br>
+                <div class="tech-stack">
+                    <span class="tech-tag">Windows Server 2016/2022</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Création d'un réseau d'entreprise</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong> Créer un réseau sécurisé et fonctionnel.</p>
+                <br>
+                <p><strong>Configurations réalisées :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Gestion des tickets et GLPI</li>
+                    <li>Un routeur et un DNS/DHCP</li>
+                    <li>Active directory et GPO</li>
+                    <li>Accès VPN</li>
+                </ul>
+                <br>
+                <div class="tech-stack">
+                    <span class="tech-tag">Windows Server 2016/2022</span>
+                    <span class="tech-tag">Ubuntu serveur</span>
+                    <span class="tech-tag">Virtualbox</span>
+                    <span class="tech-tag">GLPI</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
