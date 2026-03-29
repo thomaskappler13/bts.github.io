@@ -5,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projets E5 - Portfolio BTS SIO</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .btn-download {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .btn-download:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">Portfolio BTS SIO</div>
@@ -25,7 +40,8 @@
             </ul>
         </div>
     </nav>
-
+	<br>
+	<br>
     <div class="container">
         <div class="section-header">
             <h2>Projets E5</h2>
@@ -34,50 +50,114 @@
         
         <div class="project-card">
             <div class="project-header">
-                <h3>Mise en place d'un réseau avec GLPI</h3>
+                <h3>Administration Windows Server OS</h3>
             </div>
             <div class="project-content">
-                <p><strong>Contexte :</strong> Mettre en place un réseau avec connexion à glpi.</p>
+                <p><strong>Contexte :</strong> Mise en place d'une infrastructure réseau centralisée sous Windows Server.</p>
                 <br>
-                <p><strong>Objectifs :</strong></p>
+                <p><strong>Procédures techniques :</strong></p>
                 <ul style="margin-left: 2rem;">
-                    <li>Centraliser l'authentification des utilisateurs</li>
-                    <li>accès à GLPI pour les tickets</li>
-                    <li>Connexion des PC dans l'environnement</li>
+                    <li>Configuration d'IP statiques, routage, Active Directory, DNS et DHCP.</li>
+                    <li>Gestion des utilisateurs et déploiement de GPO (Utilisateurs et Ordinateurs).</li>
+                    <li>Déploiement de Windows via le réseau avec WDS.</li>
                 </ul>
-                <br>
-                <p><strong>Technologies utilisées :</strong></p>
                 <div class="tech-stack">
-                    <span class="tech-tag">Windows Server 2016/2022 et ubuntu server</span>
+                    <span class="tech-tag">Windows Server</span>
                     <span class="tech-tag">Active Directory</span>
-                    <span class="tech-tag">DNS</span>
-                    <span class="tech-tag">DHCP</span>
-                    <span class="tech-tag">GLPI</span>
+                    <span class="tech-tag">WDS</span>
                 </div>
+                <a href="documents/TP Windows Server OS admin.pdf" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure
+                </a>
             </div>
         </div>
 
         <div class="project-card">
             <div class="project-header">
-                <h3>Réseau d'entreprise Virtuel</h3>
+                <h3>Déploiement Docker : Debian 12 & Apache2</h3>
             </div>
             <div class="project-content">
-                <p><strong>Contexte :</strong> Création d'un réseau d'entreprise avec un routeur et un serveur DNS/DHCP et une active directory.</p>
+                <p><strong>Contexte :</strong> Création et déploiement d'une image personnalisée pour un service web.</p>
                 <br>
-                <p><strong>Réalisations :</strong></p>
+                <p><strong>Procédures techniques :</strong></p>
                 <ul style="margin-left: 2rem;">
-                    <li>Mise en place d'un DHCP et d'un DNS</li>
-                    <li>Active directory avec des ordinateurs utilisateurs </li>
-                    <li>Configuration du stockage partagé</li>
-                    <li>Mettre en place des stratégies de groupe (GPO)</li>
-		    <li>Mise en place du déploiement de Windows en WDS</li>
+                    <li>Rédaction du Dockerfile, Build de l'image et test du conteneur.</li>
+                    <li>Publication de l'image sur Docker Hub.</li>
                 </ul>
-                <br>
-		<p><strong>Outils utilisées :</strong></p>
                 <div class="tech-stack">
-                    <span class="tech-tag">Virtualbox</span>
-                    <span class="tech-tag">Windows Server 2016/2022</span>
+                    <span class="tech-tag">Docker</span>
+                    <span class="tech-tag">Debian 12</span>
+                    <span class="tech-tag">Docker Hub</span>
                 </div>
+                <a href="documents/Déploiement d'un service avec Docker  Debian12-Apache2.docx" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure
+                </a>
+            </div>
+        </div>
+
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Docker : Volumes et Persistance</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong> Mise en place d'un stockage persistant pour un serveur web Apache.</p>
+                <br>
+                <p><strong>Procédures techniques :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Création de volumes Docker et montage sur le document root.</li>
+                    <li>Vérification de la persistance après suppression du conteneur.</li>
+                </ul>
+                <div class="tech-stack">
+                    <span class="tech-tag">Docker</span>
+                    <span class="tech-tag">Volumes</span>
+                    <span class="tech-tag">Persistance</span>
+                </div>
+                <a href="documents/Docker Volumes et persistance.docx" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure
+                </a>
+            </div>
+        </div>
+
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Machine Virtuelle Jenkins avec VMware</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong> Préparation d'un environnement Linux pour l'intégration continue.</p>
+                <br>
+                <p><strong>Procédures techniques :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Installation VM CentOS, configuration Docker et Docker Compose.</li>
+                    <li>Attribution des droits Docker à l'utilisateur Jenkins.</li>
+                </ul>
+                <div class="tech-stack">
+                    <span class="tech-tag">VMware</span>
+                    <span class="tech-tag">Jenkins</span>
+                    <span class="tech-tag">Docker Compose</span>
+                </div>
+                <a href="documents/Machine Virtuelle Jenkins avec VmWare.docx" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure</a>
+            </div>
+        </div>
+
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Installation et Administration SQL Server</h3>
+            </div>
+            <div class="project-content">
+                <p><strong>Contexte :</strong> Déploiement d'un SGBD et exploitation de données (Gares SNCF).</p>
+                <br>
+                <p><strong>Procédures techniques :</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Importation de fichiers CSV massifs.</li>
+                    <li>Réalisation de requêtes SQL complexes (LIKE, filtres multicritères).</li>
+                </ul>
+                <div class="tech-stack">
+                    <span class="tech-tag">SQL Server 2019</span>
+                    <span class="tech-tag">T-SQL</span>
+                </div>
+                <a href="documents/KAPPLER_Thomas_SQL.pdf" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure</a>
             </div>
         </div>
     </div>

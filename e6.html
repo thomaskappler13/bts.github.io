@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projets E6 - Portfolio BTS SIO</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">Portfolio BTS SIO</div>
@@ -25,52 +25,81 @@
             </ul>
         </div>
     </nav>
-
+	<br>
+	<br>
     <div class="container">
         <div class="section-header">
-            <h2>Projets E6</h2>
-            <p>Services informatiques des entreprises</p>
+            <h2>Projets E6 - Session 2026</h2>
+            <p>Administration des systèmes et des réseaux (Option SISR)</p>
         </div>
         
         <div class="project-card">
             <div class="project-header">
-                <h3>Haute disponibilité</h3>
+                <h3>Réalisation 01 : Haute Disponibilité & Services Systèmes</h3>
             </div>
             <div class="project-content">
-                <p><strong>Contexte :</strong>Création d'un réseau ayant une haute disponibilité</p>
+                <p><strong>Organisation fictive :</strong> Resilience-IT</p>
+                <p><strong>Contexte :</strong> Mise en place d'une infrastructure virtualisée en cluster pour garantir la continuité de service et centraliser les identités[cite: 191].</p>
                 <br>
-                <p><strong>Méthodologie :</strong></p>
+                <p><strong>Configurations réalisées :</strong></p>
                 <ul style="margin-left: 2rem;">
-                    <li>DHCP/DNS</li>
-                    <li>Haute disponibilité</li>
+                    <li>Cluster de virtualisation (Proxmox/ESXi) en Haute Disponibilité (HA)[cite: 191].</li>
+                    <li>Stockage centralisé iSCSI via TrueNAS[cite: 191].</li>
+                    <li>Contrôleur de domaine Active Directory (Windows Server 2022)[cite: 191].</li>
+                    <li>Gestion des Unités d'Organisation (OU) et stratégies GPO[cite: 191].</li>
+                    <li>Service d'inventaire GLPI lié à l'annuaire via le protocole LDAP[cite: 82].</li>
                 </ul>
                 <br>
                 <div class="tech-stack">
-                    <span class="tech-tag">Windows Server 2016/2022</span>
+                    <span class="tech-tag">Proxmox VE</span>
+                    <span class="tech-tag">Windows Server 2022</span>
+                    <span class="tech-tag">TrueNAS</span>
+                    <span class="tech-tag">Active Directory</span>
+                </div>
+                
+                <div class="project-actions">
+                    <a href="documents/procedure-haute-dispo.pdf" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure
+                    </a>
+		    <br>
+                    <a href="documents/competences-e6-p1.pdf" target="_blank" class="btn-comp">
+                        <i class="fas fa-list-check"></i> Feuille de compétences
+                    </a>
                 </div>
             </div>
         </div>
 
         <div class="project-card">
             <div class="project-header">
-                <h3>Création d'un réseau d'entreprise</h3>
+                <h3>Réalisation 02 : Sécurisation Réseau & Accès Nomades</h3>
             </div>
             <div class="project-content">
-                <p><strong>Contexte :</strong> Créer un réseau sécurisé et fonctionnel.</p>
+                <p><strong>Organisation fictive :</strong> Nomad-Security </p>
+                <p><strong>Contexte :</strong> Déploiement d'un accès distant sécurisé chiffré lié à l'annuaire centralisé de la réalisation n°01.</p>
                 <br>
                 <p><strong>Configurations réalisées :</strong></p>
                 <ul style="margin-left: 2rem;">
-                    <li>Gestion des tickets et GLPI</li>
-                    <li>Un routeur et un DNS/DHCP</li>
-                    <li>Active directory et GPO</li>
-                    <li>Accès VPN</li>
+                    <li>Passerelle VPN sécurisée via le protocole WireGuard.</li>
+                    <li>Micro-virtualisation par conteneurs avec Docker & Docker Compose.</li>
+                    <li>Authentification Multi-Facteurs (MFA) avec Authelia lié à l'Active Directory.</li>
+                    <li>Reverse Proxy Nginx pour l'accès sécurisé aux applications web internes.</li>
                 </ul>
                 <br>
                 <div class="tech-stack">
-                    <span class="tech-tag">Windows Server 2016/2022</span>
-                    <span class="tech-tag">Ubuntu serveur</span>
-                    <span class="tech-tag">Virtualbox</span>
-                    <span class="tech-tag">GLPI</span>
+                    <span class="tech-tag">Ubuntu Server</span>
+                    <span class="tech-tag">Docker</span>
+                    <span class="tech-tag">WireGuard</span>
+                    <span class="tech-tag">MFA / Authelia</span>
+                </div>
+
+                <div class="project-actions">
+                    <a href="documents/procedure-vpn-mfa.pdf" target="_blank" class="btn-doc">
+                        <i class="fas fa-file-pdf"></i> Ouvrir la Procédure
+                    </a>
+		    <br>
+                    <a href="documents/competences-e6-p2.pdf" target="_blank" class="btn-comp">
+                        <i class="fas fa-list-check"></i> Feuille de compétences
+                    </a>
                 </div>
             </div>
         </div>

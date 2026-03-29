@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio BTS SIO - SISR</title>
+    <title>Thomas Kappler - Portfolio BTS SIO SISR</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">Portfolio BTS SIO</div>
@@ -26,39 +26,73 @@
         </div>
     </nav>
 
-    <!-- Home Page -->
     <div class="hero">
         <div class="hero-content">
-            <h1>Portfolio BTS SIO</h1>
-            <p>Solutions d'Infrastructure, Systèmes et Réseaux</p>
-            <a href="about.html" class="cta-button">Découvrir mon parcours</a>
+            <h1>Thomas Kappler</h1>
+            <p style="font-size: 1.5rem; font-weight: 300; margin-bottom: 20px;">Alternant en Solutions d'Infrastructure, Systèmes et Réseaux</p>
+            <p style="max-width: 700px; margin: 0 auto 30px; opacity: 0.9;">
+                Actuellement en alternance chez <strong>EDF</strong>, je me spécialise dans l'administration des systèmes, 
+                la cybersécurité et l'optimisation des infrastructures réseaux.
+            </p>
+            <div class="hero-btns">
+                <a href="about.html" class="cta-button">Découvrir mon parcours</a>
+                <a href="e5.html" class="cta-button" style="background: transparent; border: 2px solid white; margin-left: 10px;">Voir mes projets</a>
+            </div>
         </div>
     </div>
     
     <div class="container">
         <div class="section-header">
             <h2>Bienvenue sur mon portfolio</h2>
-            <p>Découvrez mes projets, compétences et réalisations dans le domaine des infrastructures système et réseau</p>
+            <p>Découvrez mes réalisations et mon expertise technique en informatique</p>
+        </div>
+
+        <div class="card-grid" style="margin-bottom: 50px;">
+            <div class="card fade-in">
+                <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h3>SISR</h3>
+                <p>Administration système (Windows/Linux), virtualisation avec VMware et gestion des services réseaux.</p>
+            </div>
+            <div class="card fade-in">
+                <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Cybersécurité</h3>
+                <p>Mise en place de VPN (WireGuard), authentification MFA et veille constante sur les vulnérabilités.</p>
+            </div>
+            <div class="card fade-in">
+                <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>Développement</h3>
+                <p>Automatisation de tâches en Python, requêtes SQL complexes et développement d'interfaces web.</p>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>Accès rapide</h2>
         </div>
         <div class="card-grid">
-            <div class="card fade-in clickable-card" onclick="window.location.href='about.html'">
-                <h3>🎓 Formation</h3>
-                <p>BTS Services Informatiques aux Organisations, option Solutions d'Infrastructure, Systèmes et Réseaux (SISR)</p>
-            </div>
             <div class="card fade-in clickable-card" onclick="window.location.href='e5.html'">
                 <h3>💼 Projets E5</h3>
-                <p>Projets de support et mise à disposition de services informatiques en contexte professionnel</p>
+                <p>Réalisations professionnelles liées au support et à la mise à disposition de services informatiques.</p>
             </div>
             <div class="card fade-in clickable-card" onclick="window.location.href='e6.html'">
                 <h3>🔧 Projets E6</h3>
-                <p>Projets de cybersécurité des services informatiques et administration des systèmes</p>
+                <p>Travaux portant sur la cybersécurité et l'administration avancée des systèmes et réseaux.</p>
             </div>
             <div class="card fade-in clickable-card" onclick="window.location.href='veille.html'">
                 <h3>📡 Veille Technologique</h3>
-                <p>Méthodes et outils de veille technologique et juridique dans le domaine informatique</p>
+                <p>Organisation de ma veille juridique et technologique pour rester à la pointe de l'innovation.</p>
             </div>
         </div>
     </div>
+
+    <footer style="text-align: center; padding: 40px 0; background: var(--white); margin-top: 50px; border-top: 1px solid #eee;">
+        <p>© 2026 Thomas Kappler - Portfolio BTS SIO SISR</p>
+    </footer>
 
     <script src="scripts.js"></script>
 </body>
