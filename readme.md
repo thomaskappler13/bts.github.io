@@ -6,40 +6,40 @@
 
 ## 1. Présentation
 
-Ce projet porte sur le format des exécutables **ELF64**, leur chargement en mémoire et l'étude de la transformation d'un Program Header **`PT_NOTE → PT_LOAD`**. Il comprend un programme de démonstration, un module de manipulation ELF, et deux variantes de code assembleur permettant d'étudier les modèles de communication réseau **bind** (connexion entrante) et **reverse** (connexion sortante) dans un laboratoire isolé.
+Ce projet porte sur le format des exécutables **ELF64**, leur chargement en mémoire et l'étude de la transformation d'un Program Header **`PT_NOTE → PT_LOAD`**. Il comprend un programme de démonstration, un module de manipulation ELF et deux variantes de code assembleur permettant d'étudier les modèles de communication réseau **bind** (connexion entrante) et **reverse** (connexion sortante) dans un laboratoire isolé.
 
-Le README décrit les fichiers remis, la compilation et l'inspection du programme de démonstration, les outils employés et les résultats communiqués. Les essais réseau sont documentés par leur objectif et leurs observations, sans instructions de déploiement d'un shell distant.
+Ce guide décrit les fichiers remis, la compilation et l'inspection du programme de démonstration, les outils employés et les résultats observés. Les essais réseau sont présentés par leur objectif et leurs observations.
 
 ## 2. Répartition
 
 | Membre | Partie |
-|---|---|
+| --- | --- |
 | **Théo Robert** | Lecture et analyse ELF64, Program Headers, architecture du module de modification ELF. |
-| **Thomas Kappler** | Variantes NASM bind/reverse, étude des syscalls, PIC, processus et tests en VM. |
+| **Thomas Kappler** | Variantes NASM bind/reverse, étude des syscalls, du PIC, des processus et tests en VM. |
 | **En commun** | `INTERFACE.md`, tests, documentation et présentation. |
 
 ## 3. Fichiers
 
 | Fichier | Rôle |
-|---|---|
-| `victime.asm` | Petit exécutable assembleur qui affiche un message de contrôle. |
-| `injecteur.asm` | Module assembleur étudiant les modifications des métadonnées ELF. |
-| `injecteur_reverse.asm` | Module assembleur étudiant les modifications des métadonnées ELF pour le reverse. |
-| `bindshell.asm` | Variante d'étude du modèle réseau bind. |
-| `reverseshell.asm` | Variante d'étude du modèle réseau reverse. |
-| `INTERFACE.md` | Contrat de format entre les composants. |
-| `Présentation ASM1.pptx` | Support de soutenance. |
+| --- | --- |
+| `victime.asm` | Programme témoin en assembleur affichant un message de contrôle. |
+| `injecteur.asm` | Module NASM de manipulation des métadonnées ELF. |
+| `injecteur_reverse.asm` | Variante du module destinée aux essais reverse, générée à partir de la source principale dans le laboratoire. |
+| `bindshell.asm` | Variante étudiant le modèle de communication bind. |
+| `reverseshell.asm` | Variante étudiant le modèle de communication reverse. |
+| `INTERFACE.md` | Contrat de format et de coopération entre les composants. |
+| `Présentation ASM1.pptx` | Support de soutenance (vérifier le nom exact dans le bundle). |
 
-**Note :** Les quatre principaux composants source sont écrits en **NASM x86-64**. GCC et GNU Binutils sont utilisés pour les étapes de construction et d'analyse.
+Les principaux composants source sont écrits en **NASM x86-64**. GCC et GNU Binutils interviennent lors de la construction et de l'analyse.
 
 ## 4. Prérequis
 
-- Linux x86-64 ; environnement utilisé : **Ubuntu 24.04**.
+- Système Linux x86-64 ; environnement de référence : **Ubuntu 24.04**.
 - **NASM**, **GCC**, **GNU Binutils** (`ld`, `objcopy`, `readelf`, `objdump`).
-- Utilitaires d'inspection : **xxd**, **file** ; **GDB** si nécessaire.
-- Deux VM isolées (Host-only) pour les observations réseau documentées dans le rapport.
+- Outils d'inspection : **xxd**, **file** et, si nécessaire, **GDB**.
+- Deux VM en réseau isolé *Host-only* pour les observations réseau consignées par le binôme.
 
-Vérifier les outils présents :
+Contrôler la présence des outils :
 
 ```bash
 nasm -v
@@ -53,7 +53,9 @@ file --version
 
 ## 5. Compilation, exécution et vérifications
 
-### 5.1. Compiler et lancer `victime.asm`
+### 5.1. Compiler et exécuter `victime.asm`
+
+Depuis la racine du projet :
 
 ```bash
 nasm -f elf64 victime.asm -o victime.o
@@ -67,11 +69,11 @@ Sortie attendue :
 Programme original execute avec succes !
 ```
 
-- `nasm -f elf64` : traduit la source NASM en **fichier objet ELF64**.
-- `gcc -no-pie -nostartfiles` : réalise l'édition de liens en demandant un exécutable **non-PIE**, sans les fichiers de démarrage standards (la source définit son propre `_start`).
-- `./victime` : exécute le programme de démonstration.
+- `nasm -f elf64` assemble le code en **fichier objet ELF64**.
+- `gcc -no-pie -nostartfiles` réalise l'édition de liens en demandant un exécutable **non-PIE**, sans les fichiers de démarrage standards ; la source possède son propre `_start`.
+- `./victime` exécute le programme témoin.
 
-### 5.2. Inspecter le format ELF de la victime
+### 5.2. Inspecter le format ELF
 
 ```bash
 file victime
@@ -81,29 +83,29 @@ readelf -S victime
 objdump -d victime
 ```
 
-- `file` : identifie le type du fichier.
-- `readelf -h` : affiche l'**ELF Header**, notamment `Entry point address`.
-- `readelf -l` : affiche les **Program Headers** (`LOAD`, `NOTE`, etc.).
-- `readelf -S` : affiche les **Section Headers**.
-- `objdump -d` : désassemble les instructions du programme.
+- `file` identifie le type de fichier.
+- `readelf -h` affiche l'**ELF Header**, notamment son point d'entrée.
+- `readelf -l` affiche les **Program Headers** (`LOAD`, `NOTE`, etc.).
+- `readelf -S` affiche les **Section Headers**.
+- `objdump -d` désassemble le code machine.
 
-Vérification ciblée utilisée durant les tests :
+Vérification ciblée effectuée pendant les tests :
 
 ```bash
 readelf -l victime | grep NOTE
 ```
 
-Le journal communiqué montre notamment :
+Extrait de sortie communiqué :
 
 ```text
 NOTE  0x0000000000000120  0x0000000000400120  0x0000000000400120
 ```
 
-**Important :** la présence d'un `PT_NOTE` dépend du binaire produit et de la configuration de l'éditeur de liens : les options de compilation ne garantissent pas à elles seules sa présence.
+**Attention :** les options d'édition de liens ne garantissent pas, à elles seules, la présence d'un segment `PT_NOTE` dans tous les environnements.
 
-### 5.3. Contrôler les fichiers construits dans le laboratoire
+### 5.3. Inventaire des binaires générés dans le laboratoire
 
-Après leur génération dans votre environnement de travail, les fichiers peuvent être **inspectés sans être lancés** :
+Lorsque les composants ont déjà été construits dans l'environnement de test, ces commandes permettent d'en vérifier l'existence et les caractéristiques, sans établir de connexion réseau :
 
 ```bash
 ls -lh victime *.o *.bin injecteur injecteur_reverse victime_infectee 2>/dev/null
@@ -112,56 +114,89 @@ readelf -h victime_infectee 2>/dev/null
 readelf -l victime_infectee 2>/dev/null
 ```
 
-Les variantes `bindshell.asm`, `reverseshell.asm` et le module `injecteur.asm` sont décrits dans le tableau des fichiers et le contrat `INTERFACE.md`. Les procédures d'intégration d'un shell distant dans un exécutable et d'accès distant ne sont pas détaillées ici.
+Les fichiers `bindshell.asm`, `reverseshell.asm` et `injecteur.asm` sont décrits en section 3 et dans `INTERFACE.md`. Le présent guide ne détaille pas la chaîne d'injection et de déploiement d'un shell distant.
 
-### 5.4. Explication des commandes complémentaires
+### 5.4. Commandes et outils complémentaires
 
 | Commande | Fonction |
-|---|---|
-| `ld -o <sortie> <objet>` | Effectue l'édition de liens d'un fichier objet vers un exécutable. |
-| `objcopy -O binary -j .text` | Extrait les octets de la section `.text` dans un fichier binaire brut. |
-| `xxd <fichier>` | Affiche le contenu binaire sous forme hexadécimale. |
-| `grep` | Filtre les lignes affichées ; un `grep` sur `xxd` ne prouve pas à lui seul l'unicité d'une séquence d'octets. |
+| --- | --- |
+| `ld -o sortie objet.o` | Effectue l'édition de liens vers un exécutable. |
+| `objcopy -O binary -j .text` | Extrait les octets de la section `.text` vers un binaire brut. |
+| `xxd fichier` | Affiche les octets d'un fichier sous forme hexadécimale. |
+| `grep` | Filtre des lignes ; appliqué à `xxd`, il ne prouve pas à lui seul l'unicité d'une séquence d'octets. |
 
+### 5.5. Vérifier les résultats de la démonstration
 
-### 5.5. Vérifications ciblées des fichiers générés
-
-Les commandes ci-dessous servent à examiner les fichiers **déjà construits** et à documenter le test. Elles ne lancent aucune connexion réseau.
+Ces commandes inspectent les fichiers existants :
 
 ```bash
-# Examiner les tailles des variantes
+# Tailles des binaires bruts
 ls -la bindshell.bin reverseshell.bin
 
-# Afficher les octets des fichiers pour inspection
+# Inspection hexadécimale
 xxd bindshell.bin
 xxd reverseshell.bin
 
-# Vérifier les informations ELF avant / après dans le labo
+# Comparaison des informations ELF
 readelf -h victime
 readelf -l victime
 readelf -h victime_infectee
 readelf -l victime_infectee
 
-# Vérifier le comportement du programme témoin
+# Exécution du programme témoin original
 ./victime
 ```
 
-**Note :** les sorties de `xxd | grep "48 b8"` constituent des indices visuels, pas un contrôle fiable du nombre exact d'occurrences. Une commande `readelf` n'atteste que de la structure affichée, pas de la fiabilité générale du programme.
+Les résultats de `readelf` décrivent la structure du fichier examiné ; ils ne garantissent pas à eux seuls sa fiabilité générale. Une sortie de `xxd | grep "48 b8"` ne permet pas de compter rigoureusement les occurrences d'une séquence d'octets.
 
-## 6. Résultats observés et limites
-
-### Résultats relevés
+## 6. Résultats observés
 
 | Vérification | Observation communiquée |
-|---|---|
-| Assemblage et exécution de `victime` | Réussite ; message affiché. |
-| Présence initiale de `PT_NOTE` | Confirmée avec `readelf -l`. |
+| --- | --- |
+| Assemblage et exécution de `victime` | Réussis ; message attendu affiché. |
+| Segment `PT_NOTE` dans `victime` | Présence confirmée avec `readelf -l`. |
 | Taille de `bindshell.bin` | **313 octets**. |
 | Taille de `reverseshell.bin` | **211 octets**. |
-| Création de `victime_infectee` | Observée dans le journal. |
-| Exécution du fichier résultant | Message initial affiché sur le cas testé. |
-| Point d'entrée et Program Headers modifiés | Observations signalées dans les essais précédents ; vérifier la correspondance avec la version finale. |
-| Communication bind/reverse entre les VM | Essais rapportés par le binôme ; résultats propres à l'environnement isolé. |
-| Anti-debug | Comportement rapporté lors de tests ; ne pas généraliser sans validation supplémentaire. |
+| Compilation de `injecteur` | Exécutable obtenu (**9 432 octets** dans le journal fourni). |
+| Compilation de `injecteur_reverse` | Exécutable obtenu (**9 448 octets** dans le journal fourni). |
+| Création de `victime_infectee` | Confirmée ; **12 499 octets** dans l'essai reverse communiqué. |
+| Exécution du fichier résultant | Message du programme original affiché lors du test. |
+| Valeur du point d'entrée après modification | `0x403000` rapporté pour un essai antérieur ; comparer avec les fichiers finaux. |
+| Modification des Program Headers | Signalée lors des essais ; vérifier les sorties `readelf` correspondant à la version finale. |
+| Communication bind et reverse | Essais local et entre deux VM rapportés par le binôme. |
+| Observation sous GDB | Test anti-debug rapporté ; portée limitée au scénario observé. |
 
+Ces observations concernent les cas de test du laboratoire ; elles ne garantissent pas la prise en charge de tous les fichiers ELF64.
 
+## 7. Contrat d'interface
+
+Le fichier **`INTERFACE.md`** définit la répartition des composants, le format binaire brut utilisé pour les variantes assembleur, les contraintes générales (x86-64, PIC, syscalls Linux) et les informations nécessaires à leur intégration.
+
+**Point à actualiser :** le contrat indique une taille maximale approximative de 250 octets, alors que `bindshell.bin` mesure **313 octets** dans le journal transmis. La documentation doit refléter cette différence.
+
+## 8. Limites et dépannage
+
+### Limites
+
+- Environnement de référence restreint à **Linux x86-64** et à des ELF64 adaptés aux essais.
+- Prise en charge générale des exécutables PIE et d'autres configurations ELF non démontrée.
+- Buffers de taille fixe et vérifications incomplètes des entrées.
+- Gestion partielle des lectures/écritures courtes et des erreurs système.
+- Observations réseau dépendantes de la configuration des VM et de leurs permissions.
+
+### Dépannage
+
+| Symptôme | Contrôle utile |
+| --- | --- |
+| `nasm: command not found` | Vérifier l'installation de NASM avec `nasm -v`. |
+| Fichier `victime` absent | Vérifier la sortie des étapes NASM et GCC. |
+| `Permission denied` | Vérifier les droits avec `ls -l victime`. |
+| Aucun `NOTE` affiché | Vérifier `readelf -l victime` et la configuration de l'édition de liens. |
+| Fichier résultant illisible | Comparer `file`, `readelf -h` et `readelf -l` des fichiers disponibles. |
+| Différences entre les résultats du README et ceux du PC | Vérifier les versions de sources et d'outils utilisées. |
+
+## 9. Références
+
+- Supports de cours *Shellcode class — Day 1* et *Asm dev 2*, Maxime Boury, ESGI.
+- Documentation locale : `man nasm`, `man readelf`, `man objdump`, `man ld`.
+- Contrat interne du projet : [`INTERFACE.md`](INTERFACE.md).
