@@ -8,38 +8,38 @@
 
 ## 1. Présentation du projet
 
-Le projet ASM1 porte sur l'étude des exécutables ELF64, de leur chargement en mémoire et de la transformation d'un Program Header `PT_NOTE → PT_LOAD`.
+Le projet ASM1 porte sur l'étude des exécutables ELF64, leur chargement en mémoire et la transformation d'un Program Header `PT_NOTE → PT_LOAD`.
 
-Il est composé de plusieurs éléments :
+Il comprend :
 
-- Un programme témoin nommé `victime.asm`.
-- Un module expérimental de manipulation ELF nommé `injecteur.asm`.
-- Une variante du module nommée `injecteur_reverse.asm`.
-- Deux programmes assembleur consacrés aux communications réseau : `bindshell.asm` et `reverseshell.asm`.
-- Un fichier `INTERFACE.md` définissant les échanges entre les modules.
+- Un programme témoin : `victime.asm`.
+- Un module expérimental de manipulation ELF : `injecteur.asm`.
+- Une variante du module : `injecteur_reverse.asm`.
+- Deux programmes assembleur dédiés aux modèles réseau bind et reverse : `bindshell.asm` et `reverseshell.asm`.
+- Un fichier `INTERFACE.md` définissant le contrat entre les modules.
 
-Ce guide explique comment préparer l'environnement, compiler les fichiers, lancer le programme témoin et effectuer les vérifications techniques nécessaires.
+Ce guide explique comment préparer l'environnement, compiler les fichiers, exécuter le programme témoin, analyser les exécutables et vérifier les communications réseau.
 
 ## 2. Répartition du travail
 
 | Étudiant | Responsabilités |
 |---|---|
-| Théo Robert | Analyse ELF64, Program Headers, manipulation des métadonnées ELF. |
-| Thomas Kappler | Assembleur NASM, modèles bind et reverse, syscalls, PIC, processus et observations réseau. |
+| Théo Robert | Analyse ELF64, Program Headers et manipulation des métadonnées ELF. |
+| Thomas Kappler | NASM, bind/reverse, syscalls, PIC, processus et observations réseau. |
 | En commun | Tests, documentation, interface entre modules et soutenance. |
 
 ## 3. Prérequis
 
 Le projet utilise Ubuntu 24.04 sur une architecture x86-64.
 
-Installer les outils nécessaires :
+Installer les outils :
 
 ```bash
 sudo apt update
-sudo apt install -y nasm gcc binutils xxd file gdb netcat-openbsd iproute2 iputils-ping
+sudo apt install -y nasm gcc binutils xxd file gdb netcat-openbsd iproute2 iputils-ping psmisc
 ```
 
-Vérifier leur installation :
+Vérifier les installations :
 
 ```bash
 nasm -v
@@ -49,25 +49,27 @@ objcopy --version
 readelf --version
 objdump --version
 file --version
+nc -h
 ```
 
-Pour les observations réseau, utiliser deux VM Ubuntu configurées sur un réseau Host-only.
+Pour les tests réseau, prévoir deux machines virtuelles Ubuntu sur un réseau Host-only.
 
 ## 4. Accéder au projet
 
-Ouvrir un terminal Ubuntu et accéder au répertoire :
+Ouvrir un terminal dans le dossier du projet puis vérifier les fichiers disponibles :
+
+```bash
+pwd
+ls -la
+```
+
+Si nécessaire, accéder au dossier :
 
 ```bash
 cd /home/thomas/esgi/ASM1
 ```
 
-Afficher les fichiers disponibles :
-
-```bash
-ls -la
-```
-
-Les fichiers attendus sont :
+Arborescence attendue :
 
 ```text
 ASM1/
@@ -79,7 +81,7 @@ ASM1/
 └── INTERFACE.md
 ```
 
-Le fichier `injecteur_reverse.asm` peut être absent du dossier initial.
+Certains fichiers binaires et objets seront générés pendant la compilation.
 
 ## 5. Compiler et exécuter le programme témoin
 
@@ -102,7 +104,7 @@ Sortie attendue :
 Programme original execute avec succes !
 ```
 
-### 5.3. Vérification ELF64
+### 5.3. Vérification du fichier ELF64
 
 ```bash
 file victime
@@ -112,34 +114,39 @@ readelf -S victime
 objdump -d victime
 ```
 
+Afficher uniquement le point d'entrée :
+
+```bash
+readelf -h victime | grep -Ei 'entry|entrée'
+```
+
 Vérifier la présence du segment `PT_NOTE` :
 
 ```bash
 readelf -l victime | grep NOTE
 ```
 
-Exemple de résultat observé :
+Exemple de résultat :
 
 ```text
 NOTE  0x0000000000000120  0x0000000000400120  0x0000000000400120
 ```
 
-Le résultat peut varier selon les paramètres de compilation.
+Les valeurs dépendent de l'exécutable généré et des options de compilation.
 
 ## 6. Compiler les composants du modèle bind
 
 ### 6.1. Compilation du programme assembleur
 
-Depuis le dossier du projet :
-
 ```bash
-cd /home/thomas/esgi/ASM1
-
 nasm -f elf64 bindshell.asm -o bindshell.o
 objcopy -O binary -j .text bindshell.o bindshell.bin
 ```
 
-Le fichier `bindshell.o` est un fichier objet ELF64. Le fichier `bindshell.bin` contient les octets bruts de la section `.text`.
+Fichiers générés :
+
+- `bindshell.o` : fichier objet ELF64.
+- `bindshell.bin` : contenu binaire brut de la section `.text`.
 
 ### 6.2. Compilation du module ELF
 
@@ -148,27 +155,33 @@ nasm -f elf64 injecteur.asm -o injecteur.o
 ld -o injecteur injecteur.o
 ```
 
-### 6.3. Vérifications
+### 6.3. Vérification des fichiers
 
-Contrôler les fichiers générés :
+Afficher les fichiers générés :
 
 ```bash
 ls -lh bindshell.o bindshell.bin injecteur
 ```
 
-Examiner le fichier binaire :
+Examiner les premiers octets :
 
 ```bash
 xxd bindshell.bin | head -20
 ```
 
-Rechercher visuellement une séquence particulière :
+Examiner les derniers octets :
 
 ```bash
-xxd bindshell.bin | grep "48 b8"
+xxd bindshell.bin | tail -3
 ```
 
-Cette dernière commande sert uniquement au repérage visuel et ne garantit pas le comptage exact des occurrences.
+Rechercher visuellement la séquence `48 b8` :
+
+```bash
+xxd -g 1 bindshell.bin | grep -i '48 b8'
+```
+
+Cette séquence peut correspondre au début d'une instruction `mov rax, imm64` en x86-64. La recherche sur la sortie de `xxd` est indicative : les octets recherchés peuvent se trouver à cheval sur deux lignes.
 
 Désassembler le fichier objet :
 
@@ -188,69 +201,62 @@ objdump -d -M intel injecteur
 ### 7.1. Compilation du programme assembleur
 
 ```bash
-cd /home/thomas/esgi/ASM1
-
 nasm -f elf64 reverseshell.asm -o reverseshell.o
 objcopy -O binary -j .text reverseshell.o reverseshell.bin
 ```
 
 ### 7.2. Compilation du module reverse
 
-Si le fichier `injecteur_reverse.asm` est déjà présent :
+Si `injecteur_reverse.asm` est déjà présent :
 
 ```bash
 nasm -f elf64 injecteur_reverse.asm -o injecteur_reverse.o
 ld -o injecteur_reverse injecteur_reverse.o
 ```
 
-Si le projet prévoit une variante construite à partir d'un fichier commun, vérifier que les références et les paramètres utilisés correspondent bien au module reverse avant de le compiler.
+Si le fichier est absent, il doit être préparé conformément à l'interface du projet. Une simple substitution de nom de fichier ne garantit pas la compatibilité des deux variantes.
 
 ### 7.3. Vérifications
+
+Afficher les fichiers produits :
 
 ```bash
 ls -lh reverseshell.o reverseshell.bin
 ```
 
-Afficher les octets :
+Afficher les premiers et les derniers octets :
 
 ```bash
 xxd reverseshell.bin | head -20
+xxd reverseshell.bin | tail -3
 ```
 
-Rechercher la séquence utilisée lors de l'analyse :
+Rechercher la séquence `48 b8` :
 
 ```bash
-xxd reverseshell.bin | grep "48 b8"
+xxd -g 1 reverseshell.bin | grep -i '48 b8'
 ```
 
-Inspecter les instructions :
+Désassembler les instructions :
 
 ```bash
 objdump -d -M intel reverseshell.o
 ```
 
-Vérifier une instruction réseau présente dans le code source, si elle existe :
+Examiner une instruction de configuration réseau présente dans le source, si elle existe :
 
 ```bash
 grep -F 'mov dword [rsp+4]' reverseshell.asm
 ```
 
-Cette commande permet de consulter le paramètre défini dans le fichier source. Elle ne garantit pas à elle seule la validité de la configuration réseau.
+Cette commande affiche uniquement l'instruction trouvée. Elle ne valide pas la configuration réseau complète.
 
 ## 8. Étudier les modifications ELF64
-
-Les deux modules expérimentaux s'appuient sur l'étude de la structure ELF64.
 
 ### 8.1. Vérifier le point d'entrée initial
 
 ```bash
-readelf -h victime | grep -i 'entry'
-```
-
-Sur un système en français, utiliser :
-
-```bash
-readelf -h victime | grep -i 'entrée'
+readelf -h victime | grep -Ei 'entry|entrée'
 ```
 
 ### 8.2. Examiner les Program Headers
@@ -259,60 +265,98 @@ readelf -h victime | grep -i 'entrée'
 readelf -l victime
 ```
 
-Afficher uniquement les segments `LOAD` et `NOTE` :
+Filtrer les segments `LOAD` et `NOTE` :
 
 ```bash
-readelf -l victime | grep -E "LOAD|NOTE"
+readelf -l victime | grep -E 'LOAD|NOTE'
 ```
 
 ### 8.3. Comparer deux exécutables ELF
 
-Lorsqu'un fichier expérimental distinct a été produit et validé dans le laboratoire, comparer ses métadonnées avec le programme témoin.
+Lorsqu'un exécutable expérimental est disponible, comparer ses métadonnées avec celles du programme témoin.
+
+Pour le programme original :
 
 ```bash
 readelf -h victime
 readelf -l victime
 ```
 
-Puis effectuer les mêmes commandes sur le fichier expérimental concerné.
+Pour un fichier de comparaison nommé `victime_modifiee` :
 
-Les éléments à comparer sont :
+```bash
+readelf -h victime_modifiee
+readelf -l victime_modifiee
+```
 
-| Élément | Vérification |
+Afficher uniquement les points d'entrée :
+
+```bash
+readelf -h victime | grep -Ei 'entry|entrée'
+readelf -h victime_modifiee | grep -Ei 'entry|entrée'
+```
+
+Comparer les types de segments :
+
+```bash
+readelf -l victime | grep -E 'LOAD|NOTE'
+readelf -l victime_modifiee | grep -E 'LOAD|NOTE'
+```
+
+Comparer la taille des fichiers :
+
+```bash
+stat -c '%s %n' victime victime_modifiee
+```
+
+Désassembler les deux exécutables :
+
+```bash
+objdump -d -M intel victime
+objdump -d -M intel victime_modifiee
+```
+
+Les éléments à comparer :
+
+| Élément | Description |
 |---|---|
 | `e_entry` | Adresse du point d'entrée. |
-| `p_type` | Type des segments ELF. |
-| `p_offset` | Décalage dans le fichier. |
+| `p_type` | Type du segment. |
+| `p_offset` | Position dans le fichier. |
 | `p_vaddr` | Adresse virtuelle. |
-| `p_filesz` | Taille du segment dans le fichier. |
+| `p_filesz` | Taille dans le fichier. |
 | `p_memsz` | Taille en mémoire. |
 | `p_flags` | Permissions. |
 | `p_align` | Alignement. |
 
-Une transformation `PT_NOTE → PT_LOAD` doit être analysée à partir des valeurs effectivement obtenues. La présence de quatre segments `LOAD`, par exemple, n'est pas systématique.
+La disparition d'un segment `NOTE` ou l'apparition d'un segment `LOAD` doit être confirmée avec les résultats réels de `readelf`.
+
+### 8.4. Vérifier le résultat de la compilation
+
+Contrôler le code de retour de chaque commande immédiatement après son exécution :
+
+```bash
+echo "Code de retour : $?"
+```
+
+Un code `0` indique généralement que la commande précédente s'est terminée avec succès. Il ne garantit pas que le programme compilé fonctionnera correctement.
 
 ## 9. Vérifier les communications réseau
 
-Les variantes bind et reverse sont étudiées dans un laboratoire composé de deux machines virtuelles isolées.
+Les observations sont réalisées entre deux VM Ubuntu sur un réseau Host-only.
 
-- **VM1 :** machine hébergeant le programme étudié.
-- **VM2 :** machine servant à observer les communications.
+- VM1 : machine hébergeant le programme étudié.
+- VM2 : machine permettant les observations réseau.
 
 ### 9.1. Vérifier les adresses IP
 
-Sur VM1 :
+Sur chaque VM :
 
 ```bash
 ip -br addr
 ```
 
-Sur VM2 :
-
-```bash
-ip -br addr
-```
-
-Relever les adresses IP des interfaces Host-only.
+Relever l'adresse IP de l'interface Host-only.
 
 ### 9.2. Vérifier la connectivité entre les VM
 
@@ -328,21 +372,21 @@ Depuis VM2 :
 ping -c 4 IP_VM1
 ```
 
-Remplacer `IP_VM1` et `IP_VM2` par les adresses réelles.
+Remplacer les noms par les adresses IP réelles.
 
-### 9.3. Vérifier les ports en écoute
+### 9.3. Vérifier les ports TCP en écoute
 
 ```bash
 ss -tlnp
 ```
 
-Pour rechercher un port utilisé pendant les observations :
+Filtrer sur le port étudié :
 
 ```bash
 ss -tlnp | grep 4444
 ```
 
-Si aucun processus n'écoute sur ce port, la commande ne renvoie aucune ligne.
+Si aucun service n'écoute sur ce port, la commande ne retourne aucune ligne.
 
 ### 9.4. Vérifier les connexions établies
 
@@ -350,48 +394,135 @@ Si aucun processus n'écoute sur ce port, la commande ne renvoie aucune ligne.
 ss -tn
 ```
 
-Ces observations permettent d'identifier le sens de communication, les adresses utilisées et l'état des connexions TCP.
+Cette commande affiche les connexions TCP et leur état.
 
-Pour la soutenance, documenter les différences entre une connexion entrante (bind) et une connexion sortante (reverse), à l'aide d'un échange de messages de test sans interface de commande distante.
+Elle permet notamment d'observer les états `ESTAB`, `SYN-SENT` ou `TIME-WAIT`, selon les communications présentes.
 
-## 10. Nettoyage et nouvelle compilation
+### 9.5. Arrêter les processus de test
 
-Pour supprimer les fichiers intermédiaires générés pendant la compilation :
+Pour interrompre un programme lancé au premier plan, utiliser :
+
+```text
+Ctrl+C
+```
+
+Pour rechercher un processus par son nom :
+
+```bash
+ps aux | grep '[n]om_du_programme'
+```
+
+Pour arrêter un processus dont le PID est connu :
+
+```bash
+kill PID
+```
+
+Pour arrêter une instance de Netcat au premier plan, utiliser également `Ctrl+C`.
+
+En présence de plusieurs processus portant le même nom, vérifier leur rôle avant de les arrêter.
+
+## 10. Workflow de vérification
+
+Cette procédure rassemble les principales commandes de compilation et d'inspection dans un ordre logique.
+
+### Étape 1 — Compiler le programme témoin
+
+```bash
+nasm -f elf64 victime.asm -o victime.o
+gcc -no-pie -nostartfiles -o victime victime.o
+./victime
+```
+
+### Étape 2 — Compiler la variante bind
+
+```bash
+nasm -f elf64 bindshell.asm -o bindshell.o
+objcopy -O binary -j .text bindshell.o bindshell.bin
+```
+
+### Étape 3 — Compiler la variante reverse
+
+```bash
+nasm -f elf64 reverseshell.asm -o reverseshell.o
+objcopy -O binary -j .text reverseshell.o reverseshell.bin
+```
+
+### Étape 4 — Compiler le module ELF
+
+```bash
+nasm -f elf64 injecteur.asm -o injecteur.o
+ld -o injecteur injecteur.o
+```
+
+### Étape 5 — Vérifier les résultats
+
+```bash
+file victime
+readelf -h victime
+readelf -l victime
+objdump -d -M intel victime
+```
+
+Puis :
+
+```bash
+ls -lh *.o *.bin
+```
+
+### Étape 6 — Vérifier le réseau des VM
+
+```bash
+ip -br addr
+ss -tlnp
+ss -tn
+```
+
+Le guide distingue ainsi la compilation, l'analyse des exécutables et les observations réseau.
+
+## 11. Nettoyage du projet
+
+Supprimer les fichiers objets :
 
 ```bash
 rm -f victime.o bindshell.o reverseshell.o
 rm -f injecteur.o injecteur_reverse.o
+```
+
+Supprimer les binaires bruts :
+
+```bash
 rm -f bindshell.bin reverseshell.bin
 ```
 
-Les fichiers `.asm` et `INTERFACE.md` restent conservés.
+Les fichiers sources `.asm` et la documentation sont conservés.
 
-Il est ensuite possible de relancer les étapes de compilation des sections précédentes.
-
-## 11. Récapitulatif des commandes
+## 12. Récapitulatif
 
 | Action | Commande |
 |---|---|
-| Ouvrir le projet | `cd /home/thomas/esgi/ASM1` |
-| Compiler le programme témoin | `nasm -f elf64 victime.asm -o victime.o` |
-| Lier le programme témoin | `gcc -no-pie -nostartfiles -o victime victime.o` |
-| Lancer le témoin | `./victime` |
-| Compiler bind | `nasm -f elf64 bindshell.asm -o bindshell.o` |
-| Compiler reverse | `nasm -f elf64 reverseshell.asm -o reverseshell.o` |
-| Produire le binaire brut | `objcopy -O binary -j .text fichier.o fichier.bin` |
-| Compiler le module ELF | `nasm -f elf64 injecteur.asm -o injecteur.o` |
+| Compiler un source NASM | `nasm -f elf64 fichier.asm -o fichier.o` |
+| Lier la victime | `gcc -no-pie -nostartfiles -o victime victime.o` |
 | Lier le module ELF | `ld -o injecteur injecteur.o` |
-| Vérifier les Program Headers | `readelf -l victime` |
-| Vérifier le point d'entrée | `readelf -h victime` |
+| Lancer le programme témoin | `./victime` |
+| Extraire la section `.text` | `objcopy -O binary -j .text fichier.o fichier.bin` |
+| Afficher l'en-tête ELF | `readelf -h fichier` |
+| Afficher les Program Headers | `readelf -l fichier` |
+| Afficher les Section Headers | `readelf -S fichier` |
+| Désassembler | `objdump -d -M intel fichier` |
 | Examiner les octets | `xxd fichier.bin` |
-| Désassembler | `objdump -d -M intel fichier.o` |
-| Afficher les interfaces réseau | `ip -br addr` |
-| Vérifier les ports TCP | `ss -tlnp` |
+| Comparer les tailles | `stat -c '%s %n' fichier1 fichier2` |
+| Identifier les interfaces | `ip -br addr` |
+| Tester la connectivité | `ping -c 4 IP` |
+| Afficher les ports en écoute | `ss -tlnp` |
+| Afficher les connexions TCP | `ss -tn` |
+| Rechercher un processus | `ps aux` |
+| Arrêter un processus | `kill PID` |
 
-## 12. Conclusion
+## 13. Conclusion
 
-Ce guide permet de reproduire les principales étapes de préparation et d'analyse du projet ASM1 sur Ubuntu 24.04.
+Ce guide utilisateur permet de préparer l'environnement ASM1, de compiler les sources assembleur et d'inspecter les exécutables ELF64.
 
-Il couvre la compilation du programme témoin, des variantes bind et reverse, l'inspection des fichiers ELF64 et l'observation de communications entre deux machines virtuelles.
+Il fournit également les commandes nécessaires à la comparaison des métadonnées ELF, à la vérification de la connectivité entre les machines virtuelles et au nettoyage de l'environnement de travail.
 
-La validation finale du projet doit s'appuyer sur les résultats réellement obtenus lors des tests, notamment les informations fournies par `readelf`, `objdump`, `xxd` et les outils de diagnostic réseau.
+Les résultats présentés pendant la soutenance doivent provenir des essais réellement effectués sur les machines virtuelles du projet.
